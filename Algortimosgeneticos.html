@@ -9,7 +9,7 @@
 <meta name="author" content="Augusto, Maria Eduarda, Tammy e Yoon">
 <meta name="dcterms.date" content="2024-10-29">
 
-<title>Algoritmo Genético: Uma Abordagem Prática</title>
+<title>Algoritmo Genético: O problema do caixeiro viajante (PCV).</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -36,6 +70,35 @@ ul.task-list li input[type="checkbox"] {
 <link href="Algortimosgeneticos_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="Algortimosgeneticos_files/libs/bootstrap/bootstrap-933a14f46f0e4d1503cecf416b5e09b4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -48,12 +111,21 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#introdução" id="toc-introdução" class="nav-link active" data-scroll-target="#introdução"><span class="header-section-number">1</span> Introdução</a></li>
-  <li><a href="#objetivo" id="toc-objetivo" class="nav-link" data-scroll-target="#objetivo"><span class="header-section-number">2</span> Objetivo</a></li>
-  <li><a href="#código-do-algoritmo-genético" id="toc-código-do-algoritmo-genético" class="nav-link" data-scroll-target="#código-do-algoritmo-genético"><span class="header-section-number">3</span> Código do Algoritmo Genético</a></li>
-  <li><a href="#definindo-os-parâmetros" id="toc-definindo-os-parâmetros" class="nav-link" data-scroll-target="#definindo-os-parâmetros"><span class="header-section-number">4</span> Definindo os parâmetros</a></li>
-  <li><a href="#itens-peso-valor" id="toc-itens-peso-valor" class="nav-link" data-scroll-target="#itens-peso-valor"><span class="header-section-number">5</span> Itens: (peso, valor)</a></li>
-  <li><a href="#loop-principal-do-algoritmo-genético" id="toc-loop-principal-do-algoritmo-genético" class="nav-link" data-scroll-target="#loop-principal-do-algoritmo-genético"><span class="header-section-number">6</span> Loop principal do algoritmo genético</a></li>
-  <li><a href="#melhor-solução" id="toc-melhor-solução" class="nav-link" data-scroll-target="#melhor-solução"><span class="header-section-number">7</span> Melhor solução</a></li>
+  <li><a href="#conceito-de-algoritmos-genéticos" id="toc-conceito-de-algoritmos-genéticos" class="nav-link" data-scroll-target="#conceito-de-algoritmos-genéticos"><span class="header-section-number">2</span> Conceito de Algoritmos Genéticos</a></li>
+  <li><a href="#objetivo" id="toc-objetivo" class="nav-link" data-scroll-target="#objetivo"><span class="header-section-number">3</span> Objetivo</a></li>
+  <li><a href="#implementação" id="toc-implementação" class="nav-link" data-scroll-target="#implementação"><span class="header-section-number">4</span> Implementação</a>
+  <ul class="collapse">
+  <li><a href="#inicialização" id="toc-inicialização" class="nav-link" data-scroll-target="#inicialização"><span class="header-section-number">4.1</span> Inicialização</a></li>
+  <li><a href="#avaliação" id="toc-avaliação" class="nav-link" data-scroll-target="#avaliação"><span class="header-section-number">4.2</span> Avaliação</a></li>
+  <li><a href="#seleção" id="toc-seleção" class="nav-link" data-scroll-target="#seleção"><span class="header-section-number">4.3</span> Seleção</a>
+  <ul class="collapse">
+  <li><a href="#exemplo-de-representação-de-solução" id="toc-exemplo-de-representação-de-solução" class="nav-link" data-scroll-target="#exemplo-de-representação-de-solução"><span class="header-section-number">4.3.1</span> Exemplo de representação de solução</a></li>
+  </ul></li>
+  <li><a href="#cruzamento" id="toc-cruzamento" class="nav-link" data-scroll-target="#cruzamento"><span class="header-section-number">4.4</span> Cruzamento</a></li>
+  <li><a href="#mutação" id="toc-mutação" class="nav-link" data-scroll-target="#mutação"><span class="header-section-number">4.5</span> Mutação</a></li>
+  <li><a href="#repetição" id="toc-repetição" class="nav-link" data-scroll-target="#repetição"><span class="header-section-number">4.6</span> Repetição</a></li>
+  </ul></li>
+  <li><a href="#conclusão" id="toc-conclusão" class="nav-link" data-scroll-target="#conclusão"><span class="header-section-number">5</span> Conclusão</a></li>
   </ul>
 </nav>
 </div>
@@ -63,7 +135,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Algoritmo Genético: Uma Abordagem Prática</h1>
+<h1 class="title">Algoritmo Genético: O problema do caixeiro viajante (PCV).</h1>
 </div>
 
 
@@ -94,88 +166,167 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="introdução" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Introdução</h1>
-<p>Os Algoritmos Genéticos (AGs) são técnicas de otimização inspiradas na seleção natural, utilizadas para resolver problemas complexos em diversas áreas, como ciência de dados, inteligência artificial e engenharia. Neste artigo, exploraremos como implementar um algoritmo genético para resolver o problema da mochila.</p>
+<p>Os Algoritmos Genéticos (AGs) são técnicas de otimização inspiradas nos princípios da seleção natural e evolução das espécies. Eles são especialmente úteis para resolver problemas complexos onde métodos tradicionais de busca e otimização podem falhar. Esses algoritmos têm se destacado em áreas como otimização de processos, inteligência artificial, e planejamento logístico.</p>
+<p>Nesse estudo de caso será tratado um exemplo clássico de aplicação dos AGs é o Problema do Caixeiro Viajante (PCV), que consiste em determinar a rota mais curta para um caixeiro viajante que precisa visitar uma lista de cidades exatamente uma vez, retornando à cidade de origem.</p>
 </section>
-<section id="objetivo" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Objetivo</h1>
-<p>O objetivo deste tutorial é fornecer uma visão prática da implementação de um algoritmo genético, passo a passo, utilizando Python.</p>
+<section id="conceito-de-algoritmos-genéticos" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Conceito de Algoritmos Genéticos</h1>
+<p>Essa técnica de otimização é baseada nos princípios da evolução natural descrita por Charles Darwin, assim, os AGs buscam encontrar soluções aproximadas para problemas complexos, simulando a evolução de uma população de soluções candidatas ao longo de várias gerações. Dessa forma, os fundamentos de uma AG são:</p>
+<ul>
+<li><p><strong>População</strong>: Representa o conjunto de soluções candidatas para o problema. Cada solução, chamada de indivíduo, é uma possível resposta ao problema em questão.</p></li>
+<li><p><strong>Seleção</strong>: Processo de escolha dos indivíduos mais aptos para formar a próxima geração. Indivíduos com melhor desempenho têm maior probabilidade de serem selecionados.</p></li>
+<li><p><strong>Cruzamento (Crossover)</strong>: Combina duas soluções (pais) para gerar novas soluções (filhos), misturando características das soluções originais.</p></li>
+<li><p><strong>Mutação</strong>: Introduz pequenas alterações aleatórias nas soluções para garantir a diversidade da população e evitar convergência prematura a soluções locais.</p></li>
+<li><p><strong>Aptidão (Fitness Function)</strong>: Mede a qualidade de cada solução. É usada para avaliar quão bem cada indivíduo resolve o problema em questão.</p></li>
+</ul>
+<p>Para o funcionamento desse algoritmo, ele segue o seguinte ciclo de etapas, que se repetem até que uma solução satisfatória seja encontrada:</p>
+<ol type="1">
+<li><p><strong>Inicialização</strong>: Uma população inicial é gerada de forma aleatória ou baseada em heurísticas.</p></li>
+<li><p><strong>Avaliação</strong>: A aptidão de cada indivíduo na população é calculada usando a função de aptidão.</p></li>
+<li><p><strong>Seleção</strong>: Indivíduos são selecionados com base em sua aptidão para formar a base da próxima geração.</p></li>
+<li><p><strong>Cruzamento</strong>: Pares de indivíduos selecionados são combinados para gerar novos indivíduos.</p></li>
+<li><p><strong>Mutação</strong>: Pequenas alterações aleatórias são aplicadas em alguns indivíduos para manter a diversidade genética da população.</p></li>
+<li><p><strong>Repetição</strong>: Os passos 2 a 5 são repetidos até que uma condição de parada seja atendida, como alcançar um número máximo de gerações ou encontrar uma solução satisfatória.</p></li>
+</ol>
+<p>Com essas etapas, os AGs iteram até que uma solução ótima ou próxima do ótimo seja encontrada, oferecendo um método poderoso para resolver problemas complexos.</p>
 </section>
-<section id="código-do-algoritmo-genético" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Código do Algoritmo Genético</h1>
-<p>import numpy as np import random import matplotlib.pyplot as plt</p>
+<section id="objetivo" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Objetivo</h1>
+<p>Este estudo de caso tem como objetivo explorar o uso de Algoritmos Genéticos para resolver o Problema do Caixeiro Viajante. O PCV possui aplicações práticas em diversas áreas, como:</p>
+<ul>
+<li><p><strong>Logística</strong>: Na gestão de frotas de veículos, onde a otimização de rotas pode reduzir custos operacionais e tempo de entrega.</p></li>
+<li><p><strong>Eletrônica</strong>: Em processos de soldagem de componentes em placas de circuito, onde é necessário determinar o caminho mais eficiente para que o equipamento percorra todos os pontos de solda, aumentando a produtividade da linha de produção.</p></li>
+</ul>
+<p>Com isso, pretende-se demonstrar a eficácia dos AGs em otimizar soluções para problemas que exigem análise combinatória complexa.</p>
 </section>
-<section id="definindo-os-parâmetros" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Definindo os parâmetros</h1>
-<p>num_items = 10 # Número de itens max_weight = 50 # Peso máximo da mochila population_size = 20 # Tamanho da população num_generations = 100 # Número de gerações mutation_rate = 0.2 # Taxa de mutação</p>
+<section id="implementação" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Implementação</h1>
+<section id="inicialização" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="inicialização"><span class="header-section-number">4.1</span> Inicialização</h2>
+<p>Para efeito de simplificação serão consideradas distâncias lineares calculadas em um sistema de coordenadas cartesianas, em que cada cidade i é representada por suas coordenadas(xi,yi). A distância entre duas cidades i e j é dada pela fórmula da distância Euclidiana entre o P1(xi, y1) e P2(xj, yj):</p>
+<p><span class="math display">\[
+d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}
+\]</span></p>
 </section>
-<section id="itens-peso-valor" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Itens: (peso, valor)</h1>
-<p>items = [(random.randint(5, 15), random.randint(10, 30)) for _ in range(num_items)] print(“Itens gerados (peso, valor):”, items)</p>
-<p>def create_population(size): return [np.random.randint(2, size=num_items).tolist() for _ in range(size)] # Criando lista de listas</p>
-<p>def fitness(solution): total_weight = np.sum(np.array(solution) * np.array([item[0] for item in items])) total_value = np.sum(np.array(solution) * np.array([item[1] for item in items])) if total_weight &gt; max_weight: return 0 # Penaliza se exceder o peso return total_value</p>
-<p>def tournament_selection(population): selected = [] while len(selected) &lt; len(population) // 2: competitors = random.sample(population, min(3, len(population))) # Seleciona 3 competidores aleatórios winner = max(competitors, key=fitness) # Seleciona o melhor if fitness(winner) &gt; 0: # Adiciona apenas se a aptidão for maior que 0 selected.append(winner) # Garantir que sempre haja um número mínimo de selecionados while len(selected) &lt; len(population) // 2: selected.append(random.choice(population)) return selected</p>
-<p>def crossover(parent1, parent2): point = random.randint(1, num_items - 1) child = parent1[:point] + parent2[point:]</p>
-<pre><code># Verifique se o filho excede o peso máximo
-while np.sum(np.array(child) * np.array([item[0] for item in items])) &gt; max_weight:
-    child = parent1[:point] + np.random.randint(2, size=num_items).tolist()
-
-return child</code></pre>
-<p>def mutate(solution): for idx in range(len(solution)): if random.random() &lt; mutation_rate: solution[idx] = 1 - solution[idx] # Inverte o bit</p>
-<pre><code>        # Verifique se a solução ainda é válida após a mutação
-        if np.sum(np.array(solution) * np.array([item[0] for item in items])) &gt; max_weight:
-            solution[idx] = 1 - solution[idx]  # Reverte a mutação se exceder o peso
-return solution</code></pre>
+<section id="avaliação" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="avaliação"><span class="header-section-number">4.2</span> Avaliação</h2>
+<p>A maior dificuldade do problema do Caixeiro Viajante é o número muito grande de possíveis rotas para n cidades, sendo representado por:</p>
+<p><span class="math display">\[
+\frac{(n-1)!}{2}.
+\]</span></p>
+<p>Como resultado, a avaliação de cada solução candidata é essencial para determinar a qualidade, sendo possível ver na seguinte tabela que mostra o número de rotas possíveis em função do número de cidades, permitindo que se tenha uma ideia da complexidade crescente conforme o número de cidades aumenta.</p>
+<div id="e75d85f5" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para calcular o número de rotas</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcular_rotas(n):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> math.factorial(n<span class="op">-</span><span class="dv">1</span>) <span class="op">//</span> <span class="dv">2</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados da tabela</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>numeros_cidades <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">3</span>, <span class="dv">17</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>numeros_rotas <span class="op">=</span> [calcular_rotas(n) <span class="cf">for</span> n <span class="kw">in</span> numeros_cidades]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Criar DataFrame</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Número de cidades"</span>: numeros_cidades,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Número de rotas"</span>: numeros_rotas</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Exibir a tabela</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Número de cidades  Número de rotas
+0                   3                1
+1                   4                3
+2                   5               12
+3                   6               60
+4                   7              360
+5                   8             2520
+6                   9            20160
+7                  10           181440
+8                  11          1814400
+9                  12         19958400
+10                 13        239500800
+11                 14       3113510400
+12                 15      43589145600
+13                 16     653837184000</code></pre>
+</div>
+</div>
 </section>
-<section id="loop-principal-do-algoritmo-genético" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> Loop principal do algoritmo genético</h1>
-<p>population = create_population(population_size) fitness_history = [] # Lista para armazenar a evolução da aptidão</p>
-<p>for generation in range(num_generations): selected = tournament_selection(population) # Não precisa converter para lista next_generation = []</p>
-<pre><code>for i in range(len(selected) // 2):
-    parent1 = selected[i]
-    parent2 = selected[len(selected) - i - 1]
-    child = crossover(parent1, parent2)
-    child = mutate(child)
-    next_generation.append(child)
-
-# Se a próxima geração estiver vazia, preencha com indivíduos da população anterior
-if not next_generation:
-    print("População vazia na geração.")
-    break
-
-population = next_generation  # Atualiza a população
-
-# Imprimir a população atual
-print(f"Geração {generation + 1}: População:\n", population)
-
-# Verifique se a população não está vazia antes de calcular a aptidão
-if population:
-    best_fitness = max(fitness(ind) for ind in population)
-    fitness_history.append(best_fitness)  # Armazena a melhor aptidão da geração
-    print(f"Melhor aptidão na geração {generation + 1}: {best_fitness}")  # Impressão da melhor aptidão
-else:
-    print("População vazia na geração.")
-    break</code></pre>
+<section id="seleção" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="seleção"><span class="header-section-number">4.3</span> Seleção</h2>
+<p>As soluções (ou cromossomos) representam a ordem em que as cidades devem ser visitadas, sendo chamadas de “representação do caminho”. Para n cidades, uma solução é uma permutação dos números 0, 1, 2, …, n, em que 0 representa a cidade de origem. A seleção, nesse caso, envolve escolher quais dessas soluções serão mais aptas para gerar novas gerações de possíveis soluções.</p>
+<section id="exemplo-de-representação-de-solução" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="exemplo-de-representação-de-solução"><span class="header-section-number">4.3.1</span> Exemplo de representação de solução</h3>
+<p>Uma possível solução pode ser representada pela sequência [0, 1, 3, 2, 4, 5, 9, 7, 6, 8], indicando que o caixeiro viajante começa na cidade 0, segue para a cidade 1, depois para a cidade 3, e assim por diante, até chegar à cidade 8, antes de retornar à cidade de origem (cidade 0). Uma representação visual desse trajeto seria:</p>
+<div id="524799f0" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Coordenadas das cidades (exemplo)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>cidades <span class="op">=</span> {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>: (<span class="dv">5</span>, <span class="dv">4</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>: (<span class="dv">2</span>, <span class="dv">0</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>: (<span class="dv">1</span>, <span class="dv">5</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span>: (<span class="dv">3</span>, <span class="dv">4</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">4</span>: (<span class="dv">2</span>, <span class="dv">9</span>),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span>: (<span class="dv">5</span>, <span class="dv">9</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">6</span>: (<span class="dv">6</span>, <span class="dv">6</span>),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="dv">7</span>: (<span class="dv">9</span>, <span class="dv">1</span>),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">8</span>: (<span class="dv">8</span>, <span class="dv">4</span>),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="dv">9</span>: (<span class="dv">9</span>, <span class="dv">5</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Sequência do trajeto</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>trajeto <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">0</span>]</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Extrair coordenadas do trajeto</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [cidades[i][<span class="dv">0</span>] <span class="cf">for</span> i <span class="kw">in</span> trajeto]</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> [cidades[i][<span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> trajeto]</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Criar o gráfico</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>plt.plot(x, y, marker<span class="op">=</span><span class="st">'o'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, color<span class="op">=</span><span class="st">'b'</span>)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Adicionar rótulos das cidades</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> cidades:</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    plt.text(cidades[i][<span class="dv">0</span>], cidades[i][<span class="dv">1</span>], <span class="bu">str</span>(i), fontsize<span class="op">=</span><span class="dv">12</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Adicionar títulos e rótulos</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Trajeto do Caixeiro Viajante'</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Coordenada X'</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Coordenada Y'</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Exibir o gráfico</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Algortimosgeneticos_files/figure-html/cell-3-output-1.png" width="799" height="523" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
-<section id="melhor-solução" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> Melhor solução</h1>
-<p>if population: best_solution = max(population, key=fitness) best_value = fitness(best_solution) best_weight = np.sum(np.array(best_solution) * np.array([item[0] for item in items]))</p>
-<pre><code># Itens incluídos na melhor solução
-included_items = [(i, items[i]) for i in range(num_items) if best_solution[i] == 1]
-
-# Exibindo resultados
-print("Melhor solução:", best_solution)
-print("Valor total:", best_value)
-print("Peso total:", best_weight)
-print("Itens incluídos:", included_items)
-
-# Gráfico da evolução da aptidão
-plt.plot(range(len(fitness_history)), fitness_history, marker='o')
-plt.title('Evolução da Aptidão ao Longo das Gerações')
-plt.xlabel('Gerações')
-plt.ylabel('Aptidão')
-plt.grid()
-plt.show()</code></pre>
-<p>else: print(“Não foi possível encontrar uma solução viável.”)</p>
+</section>
+<section id="cruzamento" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="cruzamento"><span class="header-section-number">4.4</span> Cruzamento</h2>
+<p>O cruzamento envolve combinar duas soluções (pais) para gerar uma nova solução (filho), misturando as características dos pais. Aqui, o objetivo é gerar novas rotas que, potencialmente, tenham um custo menor.</p>
+</section>
+<section id="mutação" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="mutação"><span class="header-section-number">4.5</span> Mutação</h2>
+<p>A mutação aplica pequenas alterações aleatórias nas soluções para garantir diversidade e prevenir a convergência prematura. Isso pode envolver operações como troca de posições de cidades, inversão da ordem de cidades em uma solução, ou inserção e deslocamento de cidades.</p>
+</section>
+<section id="repetição" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="repetição"><span class="header-section-number">4.6</span> Repetição</h2>
+<p>O ciclo de avaliação, seleção, cruzamento e mutação é repetido por várias gerações até que a condição de parada seja atendida, como alcançar um número máximo de gerações ou uma solução com custo mínimo (ou satisfatório). A busca é realizada até que se encontre uma solução ótima ou próxima do ótimo.</p>
+<p>Nesse caso foi criado a função de custo a partir da soma das distâncias de cada trajeto para solucionar o problema, visto que o objetivo é encontrar a rota mais curta possível. Dessa forma, pode-se concluir que quanto menor o custo, maior a qualidade da solução.</p>
+</section>
+</section>
+<section id="conclusão" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Conclusão</h1>
+<p>Este estudo de caso demonstrou a aplicação dos Algoritmos Genéticos na resolução do Problema do Caixeiro Viajante, destacando sua capacidade de explorar grandes espaços de soluções e encontrar rotas eficientes. Através da representação das soluções e dos operadores genéticos, foi possível gerar soluções aproximadas, minimizando o custo das rotas. Embora não garantam a solução ótima global, os AGs mostram-se eficazes em problemas complexos, especialmente quando combinados com técnicas híbridas para melhorar a precisão da busca.</p>
 </section>
 
 </main>
