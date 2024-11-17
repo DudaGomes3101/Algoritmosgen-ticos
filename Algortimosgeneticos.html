@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.32">
+<meta name="generator" content="quarto-1.6.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -31,10 +31,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="Algortimosgeneticos_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="Algortimosgeneticos_files/libs/quarto-html/anchor.min.js"></script>
 <link href="Algortimosgeneticos_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="Algortimosgeneticos_files/libs/quarto-html/quarto-syntax-highlighting-2486e1f0a3ee9ee1fc393803a1361cdb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="Algortimosgeneticos_files/libs/quarto-html/quarto-syntax-highlighting-01c78b5cd655e4cd89133cf59d535862.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="Algortimosgeneticos_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="Algortimosgeneticos_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="Algortimosgeneticos_files/libs/bootstrap/bootstrap-5bdc1ec511977dd36301403cf8f4f68d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="Algortimosgeneticos_files/libs/bootstrap/bootstrap-933a14f46f0e4d1503cecf416b5e09b4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -54,7 +54,6 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#itens-peso-valor" id="toc-itens-peso-valor" class="nav-link" data-scroll-target="#itens-peso-valor"><span class="header-section-number">5</span> Itens: (peso, valor)</a></li>
   <li><a href="#loop-principal-do-algoritmo-genético" id="toc-loop-principal-do-algoritmo-genético" class="nav-link" data-scroll-target="#loop-principal-do-algoritmo-genético"><span class="header-section-number">6</span> Loop principal do algoritmo genético</a></li>
   <li><a href="#melhor-solução" id="toc-melhor-solução" class="nav-link" data-scroll-target="#melhor-solução"><span class="header-section-number">7</span> Melhor solução</a></li>
-  <li><a href="#gráfico-da-evolução-da-aptidão" id="toc-gráfico-da-evolução-da-aptidão" class="nav-link" data-scroll-target="#gráfico-da-evolução-da-aptidão"><span class="header-section-number">8</span> Gráfico da evolução da aptidão</a></li>
   </ul>
 </nav>
 </div>
@@ -107,41 +106,76 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="definindo-os-parâmetros" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> Definindo os parâmetros</h1>
-<p>num_items = 10 # Número de itens max_weight = 50 # Peso máximo da mochila population_size = 20 # Tamanho da população num_generations = 100 # Número de gerações mutation_rate = 0.1 # Taxa de mutação</p>
+<p>num_items = 10 # Número de itens max_weight = 50 # Peso máximo da mochila population_size = 20 # Tamanho da população num_generations = 100 # Número de gerações mutation_rate = 0.2 # Taxa de mutação</p>
 </section>
 <section id="itens-peso-valor" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Itens: (peso, valor)</h1>
-<p>items = [(random.randint(5, 15), random.randint(10, 30)) for _ in range(num_items)]</p>
-<p>def create_population(size): return [np.random.randint(2, size=num_items) for _ in range(size)]</p>
-<p>def fitness(solution): total_weight = np.sum(solution * [item[0] for item in items]) total_value = np.sum(solution * [item[1] for item in items]) if total_weight &gt; max_weight: return 0 # Penaliza se exceder o peso return total_value</p>
-<p>def selection(population): scores = [fitness(ind) for ind in population] selected = np.random.choice(population, size=len(population)//2, p=scores/np.sum(scores)) return selected</p>
-<p>def crossover(parent1, parent2): point = random.randint(1, num_items - 1) child = np.concatenate((parent1[:point], parent2[point:])) return child</p>
-<p>def mutate(solution): for idx in range(len(solution)): if random.random() &lt; mutation_rate: solution[idx] = 1 - solution[idx] # Inverte o bit return solution</p>
+<p>items = [(random.randint(5, 15), random.randint(10, 30)) for _ in range(num_items)] print(“Itens gerados (peso, valor):”, items)</p>
+<p>def create_population(size): return [np.random.randint(2, size=num_items).tolist() for _ in range(size)] # Criando lista de listas</p>
+<p>def fitness(solution): total_weight = np.sum(np.array(solution) * np.array([item[0] for item in items])) total_value = np.sum(np.array(solution) * np.array([item[1] for item in items])) if total_weight &gt; max_weight: return 0 # Penaliza se exceder o peso return total_value</p>
+<p>def tournament_selection(population): selected = [] while len(selected) &lt; len(population) // 2: competitors = random.sample(population, min(3, len(population))) # Seleciona 3 competidores aleatórios winner = max(competitors, key=fitness) # Seleciona o melhor if fitness(winner) &gt; 0: # Adiciona apenas se a aptidão for maior que 0 selected.append(winner) # Garantir que sempre haja um número mínimo de selecionados while len(selected) &lt; len(population) // 2: selected.append(random.choice(population)) return selected</p>
+<p>def crossover(parent1, parent2): point = random.randint(1, num_items - 1) child = parent1[:point] + parent2[point:]</p>
+<pre><code># Verifique se o filho excede o peso máximo
+while np.sum(np.array(child) * np.array([item[0] for item in items])) &gt; max_weight:
+    child = parent1[:point] + np.random.randint(2, size=num_items).tolist()
+
+return child</code></pre>
+<p>def mutate(solution): for idx in range(len(solution)): if random.random() &lt; mutation_rate: solution[idx] = 1 - solution[idx] # Inverte o bit</p>
+<pre><code>        # Verifique se a solução ainda é válida após a mutação
+        if np.sum(np.array(solution) * np.array([item[0] for item in items])) &gt; max_weight:
+            solution[idx] = 1 - solution[idx]  # Reverte a mutação se exceder o peso
+return solution</code></pre>
 </section>
 <section id="loop-principal-do-algoritmo-genético" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Loop principal do algoritmo genético</h1>
 <p>population = create_population(population_size) fitness_history = [] # Lista para armazenar a evolução da aptidão</p>
-<p>for generation in range(num_generations): selected = selection(population) next_generation = []</p>
-<pre><code>for i in range(len(selected)//2):
+<p>for generation in range(num_generations): selected = tournament_selection(population) # Não precisa converter para lista next_generation = []</p>
+<pre><code>for i in range(len(selected) // 2):
     parent1 = selected[i]
-    parent2 = selected[len(selected)-i-1]
+    parent2 = selected[len(selected) - i - 1]
     child = crossover(parent1, parent2)
     child = mutate(child)
     next_generation.append(child)
 
-population = np.array(next_generation)
+# Se a próxima geração estiver vazia, preencha com indivíduos da população anterior
+if not next_generation:
+    print("População vazia na geração.")
+    break
 
-# Armazena a melhor aptidão da geração
-best_fitness = max(fitness(ind) for ind in population)
-fitness_history.append(best_fitness)</code></pre>
+population = next_generation  # Atualiza a população
+
+# Imprimir a população atual
+print(f"Geração {generation + 1}: População:\n", population)
+
+# Verifique se a população não está vazia antes de calcular a aptidão
+if population:
+    best_fitness = max(fitness(ind) for ind in population)
+    fitness_history.append(best_fitness)  # Armazena a melhor aptidão da geração
+    print(f"Melhor aptidão na geração {generation + 1}: {best_fitness}")  # Impressão da melhor aptidão
+else:
+    print("População vazia na geração.")
+    break</code></pre>
 </section>
 <section id="melhor-solução" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Melhor solução</h1>
-<p>best_solution = max(population, key=fitness) print(“Melhor solução:”, best_solution) print(“Valor total:”, fitness(best_solution))</p>
-</section>
-<section id="gráfico-da-evolução-da-aptidão" class="level1" data-number="8">
-<h1 data-number="8"><span class="header-section-number">8</span> Gráfico da evolução da aptidão</h1>
-<p>plt.plot(range(num_generations), fitness_history, marker=‘o’) plt.title(‘Evolução da Aptidão ao Longo das Gerações’) plt.xlabel(‘Gerações’) plt.ylabel(‘Aptidão’) plt.grid() plt.show()</p>
+<p>if population: best_solution = max(population, key=fitness) best_value = fitness(best_solution) best_weight = np.sum(np.array(best_solution) * np.array([item[0] for item in items]))</p>
+<pre><code># Itens incluídos na melhor solução
+included_items = [(i, items[i]) for i in range(num_items) if best_solution[i] == 1]
+
+# Exibindo resultados
+print("Melhor solução:", best_solution)
+print("Valor total:", best_value)
+print("Peso total:", best_weight)
+print("Itens incluídos:", included_items)
+
+# Gráfico da evolução da aptidão
+plt.plot(range(len(fitness_history)), fitness_history, marker='o')
+plt.title('Evolução da Aptidão ao Longo das Gerações')
+plt.xlabel('Gerações')
+plt.ylabel('Aptidão')
+plt.grid()
+plt.show()</code></pre>
+<p>else: print(“Não foi possível encontrar uma solução viável.”)</p>
 </section>
 
 </main>
@@ -228,8 +262,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -340,7 +372,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {

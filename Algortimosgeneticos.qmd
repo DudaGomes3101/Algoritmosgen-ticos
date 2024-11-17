@@ -1,5 +1,5 @@
 ---
-title: "Algoritmo Genético: Uma Abordagem Prática"
+title: "Algoritmo Genético: O problema do caixeiro viajante (PCV)."
 author: "Augusto, Maria Eduarda, Tammy e Yoon"
 date: "2024-10-29"
 format: 
@@ -11,127 +11,159 @@ format:
 
 # Introdução
 
-Os Algoritmos Genéticos (AGs) são técnicas de otimização inspiradas na seleção natural, utilizadas para resolver problemas complexos em diversas áreas, como ciência de dados, inteligência artificial e engenharia. Neste artigo, exploraremos como implementar um algoritmo genético para resolver o problema da mochila.
+Os Algoritmos Genéticos (AGs) são técnicas de otimização inspiradas nos princípios da seleção natural e evolução das espécies. Eles são especialmente úteis para resolver problemas complexos onde métodos tradicionais de busca e otimização podem falhar. Esses algoritmos têm se destacado em áreas como otimização de processos, inteligência artificial, e planejamento logístico.
+ 
+Nesse estudo de caso será tratado um exemplo clássico de aplicação dos AGs é o Problema do Caixeiro Viajante (PCV), que consiste em determinar a rota mais curta para um caixeiro viajante que precisa visitar uma lista de cidades exatamente uma vez, retornando à cidade de origem.
+
+# Conceito de Algoritmos Genéticos
+
+Essa técnica de otimização é baseada nos princípios da evolução natural descrita por Charles Darwin, assim, os AGs buscam encontrar soluções aproximadas para problemas complexos, simulando a evolução de uma população de soluções candidatas ao longo de várias gerações. Dessa forma, os fundamentos de uma AG são:
+
+- **População**: Representa o conjunto de soluções candidatas para o problema. Cada solução, chamada de indivíduo, é uma possível resposta ao problema em questão.  
+
+- **Seleção**: Processo de escolha dos indivíduos mais aptos para formar a próxima geração. Indivíduos com melhor desempenho têm maior probabilidade de serem selecionados.  
+
+- **Cruzamento (Crossover)**: Combina duas soluções (pais) para gerar novas soluções (filhos), misturando características das soluções originais.  
+
+- **Mutação**: Introduz pequenas alterações aleatórias nas soluções para garantir a diversidade da população e evitar convergência prematura a soluções locais.  
+
+- **Aptidão (Fitness Function)**: Mede a qualidade de cada solução. É usada para avaliar quão bem cada indivíduo resolve o problema em questão.  
+
+Para o funcionamento desse algoritmo, ele segue o seguinte ciclo de etapas, que se repetem até que uma solução satisfatória seja encontrada:
+
+1. **Inicialização**: Uma população inicial é gerada de forma aleatória ou baseada em heurísticas.  
+
+2. **Avaliação**: A aptidão de cada indivíduo na população é calculada usando a função de aptidão.  
+
+3. **Seleção**: Indivíduos são selecionados com base em sua aptidão para formar a base da próxima geração.  
+
+4. **Cruzamento**: Pares de indivíduos selecionados são combinados para gerar novos indivíduos.  
+
+5. **Mutação**: Pequenas alterações aleatórias são aplicadas em alguns indivíduos para manter a diversidade genética da população.  
+
+6. **Repetição**: Os passos 2 a 5 são repetidos até que uma condição de parada seja atendida, como alcançar um número máximo de gerações ou encontrar uma solução satisfatória.  
+
+Com essas etapas, os AGs iteram até que uma solução ótima ou próxima do ótimo seja encontrada, oferecendo um método poderoso para resolver problemas complexos.  
 
 # Objetivo
 
-O objetivo deste tutorial é fornecer uma visão prática da implementação de um algoritmo genético, passo a passo, utilizando Python.
+Este estudo de caso tem como objetivo explorar o uso de Algoritmos Genéticos para resolver o Problema do Caixeiro Viajante. O PCV possui aplicações práticas em diversas áreas, como:
 
-# Código do Algoritmo Genético
+- **Logística**: Na gestão de frotas de veículos, onde a otimização de rotas pode reduzir custos operacionais e tempo de entrega.
+
+- **Eletrônica**: Em processos de soldagem de componentes em placas de circuito, onde é necessário determinar o caminho mais eficiente para que o equipamento percorra todos os pontos de solda, aumentando a produtividade da linha de produção.
+
+Com isso, pretende-se demonstrar a eficácia dos AGs em otimizar soluções para problemas que exigem análise combinatória complexa.
+
+# Implementação
+
+## Inicialização 
+
+Para efeito de simplificação serão consideradas distâncias lineares calculadas em um sistema de coordenadas cartesianas, em que cada cidade i é representada por suas coordenadas(xi,yi). A distância entre duas cidades i e j é dada pela fórmula da distância Euclidiana entre o P1(xi, y1) e P2(xj, yj):
+
+$$
+d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}
+$$
+
+## Avaliação
+
+A maior dificuldade do problema do Caixeiro Viajante é o número muito grande de possíveis rotas para n cidades, sendo representado por:
+
+$$
+\frac{(n-1)!}{2}. 
+$$
+
+Como resultado, a avaliação de cada solução candidata é essencial para determinar a qualidade, sendo possível ver na seguinte tabela que mostra o número de rotas possíveis em função do número de cidades, permitindo que se tenha uma ideia da complexidade crescente conforme o número de cidades aumenta.
 
 ```{python}
-import numpy as np
-import random
+import pandas as pd
+import math
+
+# Função para calcular o número de rotas
+def calcular_rotas(n):
+    return math.factorial(n-1) // 2
+
+# Dados da tabela
+numeros_cidades = list(range(3, 17))
+numeros_rotas = [calcular_rotas(n) for n in numeros_cidades]
+
+# Criar DataFrame
+df = pd.DataFrame({
+    "Número de cidades": numeros_cidades,
+    "Número de rotas": numeros_rotas
+})
+
+# Exibir a tabela
+print(df)
+```
+
+## Seleção
+
+As soluções (ou cromossomos) representam a ordem em que as cidades devem ser visitadas, sendo chamadas de "representação do caminho". Para n cidades, uma solução é uma permutação dos números 0, 1, 2, ..., n, em que 0 representa a cidade de origem. A seleção, nesse caso, envolve escolher quais dessas soluções serão mais aptas para gerar novas gerações de possíveis soluções.
+
+### Exemplo de representação de solução
+
+Uma possível solução pode ser representada pela sequência [0, 1, 3, 2, 4, 5, 9, 7, 6, 8], indicando que o caixeiro viajante começa na cidade 0, segue para a cidade 1, depois para a cidade 3, e assim por diante, até chegar à cidade 8, antes de retornar à cidade de origem (cidade 0). Uma representação visual desse trajeto seria:
+
+```{python}
+
 import matplotlib.pyplot as plt
 
-# Definindo os parâmetros
-num_items = 10  # Número de itens
-max_weight = 50  # Peso máximo da mochila
-population_size = 20  # Tamanho da população
-num_generations = 100  # Número de gerações
-mutation_rate = 0.2  # Taxa de mutação
+# Coordenadas das cidades (exemplo)
+cidades = {
+    0: (5, 4),
+    1: (2, 0),
+    2: (1, 5),
+    3: (3, 4),
+    4: (2, 9),
+    5: (5, 9),
+    6: (6, 6),
+    7: (9, 1),
+    8: (8, 4),
+    9: (9, 5)
+}
 
-# Itens: (peso, valor)
-items = [(random.randint(5, 15), random.randint(10, 30)) for _ in range(num_items)]
-print("Itens gerados (peso, valor):", items)
+# Sequência do trajeto
+trajeto = [0, 1, 3, 2, 4, 5, 9, 7, 6, 8, 0]
 
-def create_population(size):
-    return [np.random.randint(2, size=num_items).tolist() for _ in range(size)]  # Criando lista de listas
+# Extrair coordenadas do trajeto
+x = [cidades[i][0] for i in trajeto]
+y = [cidades[i][1] for i in trajeto]
 
-def fitness(solution):
-    total_weight = np.sum(np.array(solution) * np.array([item[0] for item in items]))
-    total_value = np.sum(np.array(solution) * np.array([item[1] for item in items]))
-    if total_weight > max_weight:
-        return 0  # Penaliza se exceder o peso
-    return total_value
+# Criar o gráfico
+plt.figure(figsize=(10, 6))
+plt.plot(x, y, marker='o', linestyle='-', color='b')
 
-def tournament_selection(population):
-    selected = []
-    while len(selected) < len(population) // 2:
-        competitors = random.sample(population, min(3, len(population)))  # Seleciona 3 competidores aleatórios
-        winner = max(competitors, key=fitness)  # Seleciona o melhor
-        if fitness(winner) > 0:  # Adiciona apenas se a aptidão for maior que 0
-            selected.append(winner)
-    # Garantir que sempre haja um número mínimo de selecionados
-    while len(selected) < len(population) // 2:
-        selected.append(random.choice(population))
-    return selected
+# Adicionar rótulos das cidades
+for i in cidades:
+    plt.text(cidades[i][0], cidades[i][1], str(i), fontsize=12, ha='right')
 
-def crossover(parent1, parent2):
-    point = random.randint(1, num_items - 1)
-    child = parent1[:point] + parent2[point:]
+# Adicionar títulos e rótulos
+plt.title('Trajeto do Caixeiro Viajante')
+plt.xlabel('Coordenada X')
+plt.ylabel('Coordenada Y')
+plt.grid(True)
 
-    # Verifique se o filho excede o peso máximo
-    while np.sum(np.array(child) * np.array([item[0] for item in items])) > max_weight:
-        child = parent1[:point] + np.random.randint(2, size=num_items).tolist()
-    
-    return child
+# Exibir o gráfico
+plt.show()
 
-def mutate(solution):
-    for idx in range(len(solution)):
-        if random.random() < mutation_rate:
-            solution[idx] = 1 - solution[idx]  # Inverte o bit
-            
-            # Verifique se a solução ainda é válida após a mutação
-            if np.sum(np.array(solution) * np.array([item[0] for item in items])) > max_weight:
-                solution[idx] = 1 - solution[idx]  # Reverte a mutação se exceder o peso
-    return solution
 
-# Loop principal do algoritmo genético
-population = create_population(population_size)
-fitness_history = []  # Lista para armazenar a evolução da aptidão
+```
 
-for generation in range(num_generations):
-    selected = tournament_selection(population)  # Não precisa converter para lista
-    next_generation = []
+## Cruzamento
 
-    for i in range(len(selected) // 2):
-        parent1 = selected[i]
-        parent2 = selected[len(selected) - i - 1]
-        child = crossover(parent1, parent2)
-        child = mutate(child)
-        next_generation.append(child)
+O cruzamento envolve combinar duas soluções (pais) para gerar uma nova solução (filho), misturando as características dos pais. Aqui, o objetivo é gerar novas rotas que, potencialmente, tenham um custo menor. 
 
-    # Se a próxima geração estiver vazia, preencha com indivíduos da população anterior
-    if not next_generation:
-        print("População vazia na geração.")
-        break
-    
-    population = next_generation  # Atualiza a população
+## Mutação
 
-    # Imprimir a população atual
-    print(f"Geração {generation + 1}: População:\n", population)
+A mutação aplica pequenas alterações aleatórias nas soluções para garantir diversidade e prevenir a convergência prematura. Isso pode envolver operações como troca de posições de cidades, inversão da ordem de cidades em uma solução, ou inserção e deslocamento de cidades. 
 
-    # Verifique se a população não está vazia antes de calcular a aptidão
-    if population:
-        best_fitness = max(fitness(ind) for ind in population)
-        fitness_history.append(best_fitness)  # Armazena a melhor aptidão da geração
-        print(f"Melhor aptidão na geração {generation + 1}: {best_fitness}")  # Impressão da melhor aptidão
-    else:
-        print("População vazia na geração.")
-        break
+## Repetição
 
-# Melhor solução
-if population:
-    best_solution = max(population, key=fitness)
-    best_value = fitness(best_solution)
-    best_weight = np.sum(np.array(best_solution) * np.array([item[0] for item in items]))
+O ciclo de avaliação, seleção, cruzamento e mutação é repetido por várias gerações até que a condição de parada seja atendida, como alcançar um número máximo de gerações ou uma solução com custo mínimo (ou satisfatório). A busca é realizada até que se encontre uma solução ótima ou próxima do ótimo.
 
-    # Itens incluídos na melhor solução
-    included_items = [(i, items[i]) for i in range(num_items) if best_solution[i] == 1]
+Nesse caso foi criado a função de custo a partir da soma das distâncias de cada trajeto para solucionar o problema, visto que o objetivo é encontrar a rota mais curta possível. Dessa forma, pode-se concluir que quanto menor o custo, maior a qualidade da solução.
 
-    # Exibindo resultados
-    print("Melhor solução:", best_solution)
-    print("Valor total:", best_value)
-    print("Peso total:", best_weight)
-    print("Itens incluídos:", included_items)
+# Conclusão
 
-    # Gráfico da evolução da aptidão
-    plt.plot(range(len(fitness_history)), fitness_history, marker='o')
-    plt.title('Evolução da Aptidão ao Longo das Gerações')
-    plt.xlabel('Gerações')
-    plt.ylabel('Aptidão')
-    plt.grid()
-    plt.show()
-else:
-    print("Não foi possível encontrar uma solução viável.")
+Este estudo de caso demonstrou a aplicação dos Algoritmos Genéticos na resolução do Problema do Caixeiro Viajante, destacando sua capacidade de explorar grandes espaços de soluções e encontrar rotas eficientes. Através da representação das soluções e dos operadores genéticos, foi possível gerar soluções aproximadas, minimizando o custo das rotas. Embora não garantam a solução ótima global, os AGs mostram-se eficazes em problemas complexos, especialmente quando combinados com técnicas híbridas para melhorar a precisão da busca.
