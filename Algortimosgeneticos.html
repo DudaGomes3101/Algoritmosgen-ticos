@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Augusto, Maria Eduarda, Tammy e Yoon">
-<meta name="dcterms.date" content="2024-10-29">
+<meta name="dcterms.date" content="2024-11-15">
 
 <title>Algoritmo Genético: O problema do caixeiro viajante (PCV).</title>
 <style>
@@ -126,6 +126,7 @@ window.Quarto = {
   <li><a href="#repetição" id="toc-repetição" class="nav-link" data-scroll-target="#repetição"><span class="header-section-number">4.6</span> Repetição</a></li>
   </ul></li>
   <li><a href="#conclusão" id="toc-conclusão" class="nav-link" data-scroll-target="#conclusão"><span class="header-section-number">5</span> Conclusão</a></li>
+  <li><a href="#referências" id="toc-referências" class="nav-link" data-scroll-target="#referências"><span class="header-section-number">6</span> Referências</a></li>
   </ul>
 </nav>
 </div>
@@ -152,7 +153,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 29, 2024</p>
+      <p class="date">November 15, 2024</p>
     </div>
   </div>
   
@@ -215,7 +216,7 @@ d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}
 \frac{(n-1)!}{2}.
 \]</span></p>
 <p>Como resultado, a avaliação de cada solução candidata é essencial para determinar a qualidade, sendo possível ver na seguinte tabela que mostra o número de rotas possíveis em função do número de cidades, permitindo que se tenha uma ideia da complexidade crescente conforme o número de cidades aumenta.</p>
-<div id="e75d85f5" class="cell" data-execution_count="1">
+<div id="45498187" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -259,8 +260,8 @@ d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}
 <p>As soluções (ou cromossomos) representam a ordem em que as cidades devem ser visitadas, sendo chamadas de “representação do caminho”. Para n cidades, uma solução é uma permutação dos números 0, 1, 2, …, n, em que 0 representa a cidade de origem. A seleção, nesse caso, envolve escolher quais dessas soluções serão mais aptas para gerar novas gerações de possíveis soluções.</p>
 <section id="exemplo-de-representação-de-solução" class="level3" data-number="4.3.1">
 <h3 data-number="4.3.1" class="anchored" data-anchor-id="exemplo-de-representação-de-solução"><span class="header-section-number">4.3.1</span> Exemplo de representação de solução</h3>
-<p>Uma possível solução pode ser representada pela sequência [0, 1, 3, 2, 4, 5, 9, 7, 6, 8], indicando que o caixeiro viajante começa na cidade 0, segue para a cidade 1, depois para a cidade 3, e assim por diante, até chegar à cidade 8, antes de retornar à cidade de origem (cidade 0). Uma representação visual desse trajeto seria:</p>
-<div id="524799f0" class="cell" data-execution_count="2">
+<p>Uma possível solução pode ser representada pela sequência [0, 1, 2, 3, 4, 5], indicando que o caixeiro viajante começa na cidade 0, segue para a cidade 1, depois para a cidade 3, e assim por diante, até chegar à cidade 8, antes de retornar à cidade de origem (cidade 0). Uma representação visual desse trajeto seria:</p>
+<div id="452204e9" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Coordenadas das cidades (exemplo)</span></span>
@@ -270,36 +271,32 @@ d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>: (<span class="dv">1</span>, <span class="dv">5</span>),</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span>: (<span class="dv">3</span>, <span class="dv">4</span>),</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">4</span>: (<span class="dv">2</span>, <span class="dv">9</span>),</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span>: (<span class="dv">5</span>, <span class="dv">9</span>),</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">6</span>: (<span class="dv">6</span>, <span class="dv">6</span>),</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="dv">7</span>: (<span class="dv">9</span>, <span class="dv">1</span>),</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="dv">8</span>: (<span class="dv">8</span>, <span class="dv">4</span>),</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="dv">9</span>: (<span class="dv">9</span>, <span class="dv">5</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Sequência do trajeto</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>trajeto <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">0</span>]</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span>: (<span class="dv">5</span>, <span class="dv">9</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Sequência do trajeto</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>trajeto <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">0</span>]</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Extrair coordenadas do trajeto</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [cidades[i][<span class="dv">0</span>] <span class="cf">for</span> i <span class="kw">in</span> trajeto]</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> [cidades[i][<span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> trajeto]</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Extrair coordenadas do trajeto</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> [cidades[i][<span class="dv">0</span>] <span class="cf">for</span> i <span class="kw">in</span> trajeto]</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> [cidades[i][<span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> trajeto]</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Criar o gráfico</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>plt.plot(x, y, marker<span class="op">=</span><span class="st">'o'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, color<span class="op">=</span><span class="st">'b'</span>)</span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Criar o gráfico</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>plt.plot(x, y, marker<span class="op">=</span><span class="st">'o'</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, color<span class="op">=</span><span class="st">'b'</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Adicionar rótulos das cidades</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> cidades:</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    plt.text(cidades[i][<span class="dv">0</span>], cidades[i][<span class="dv">1</span>], <span class="bu">str</span>(i), fontsize<span class="op">=</span><span class="dv">12</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Adicionar rótulos das cidades</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> cidades:</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    plt.text(cidades[i][<span class="dv">0</span>], cidades[i][<span class="dv">1</span>], <span class="bu">str</span>(i), fontsize<span class="op">=</span><span class="dv">12</span>, ha<span class="op">=</span><span class="st">'right'</span>)</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Adicionar títulos e rótulos</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Trajeto do Caixeiro Viajante'</span>)</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Coordenada X'</span>)</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Coordenada Y'</span>)</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Exibir o gráfico</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Adicionar títulos e rótulos</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Trajeto do Caixeiro Viajante'</span>)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Coordenada X'</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'Coordenada Y'</span>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Exibir o gráfico</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -322,11 +319,72 @@ d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}
 <h2 data-number="4.6" class="anchored" data-anchor-id="repetição"><span class="header-section-number">4.6</span> Repetição</h2>
 <p>O ciclo de avaliação, seleção, cruzamento e mutação é repetido por várias gerações até que a condição de parada seja atendida, como alcançar um número máximo de gerações ou uma solução com custo mínimo (ou satisfatório). A busca é realizada até que se encontre uma solução ótima ou próxima do ótimo.</p>
 <p>Nesse caso foi criado a função de custo a partir da soma das distâncias de cada trajeto para solucionar o problema, visto que o objetivo é encontrar a rota mais curta possível. Dessa forma, pode-se concluir que quanto menor o custo, maior a qualidade da solução.</p>
+<div id="bde87d94" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> itertools</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para calcular a distância Euclidiana entre duas cidades</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcular_distancia(cidade1, cidade2):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    x1, y1 <span class="op">=</span> cidade1</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    x2, y2 <span class="op">=</span> cidade2</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> math.sqrt((x2 <span class="op">-</span> x1)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> (y2 <span class="op">-</span> y1)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para calcular o custo total de uma rota</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calcular_custo_rota(rota, cidades):</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    custo <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(rota) <span class="op">-</span> <span class="dv">1</span>):</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        custo <span class="op">+=</span> calcular_distancia(cidades[rota[i]], cidades[rota[i <span class="op">+</span> <span class="dv">1</span>]])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Retorna à cidade inicial</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    custo <span class="op">+=</span> calcular_distancia(cidades[rota[<span class="op">-</span><span class="dv">1</span>]], cidades[rota[<span class="dv">0</span>]])</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> custo</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para encontrar o melhor caminho</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> encontrar_melhor_caminho(cidades):</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    melhor_rota <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    menor_custo <span class="op">=</span> <span class="bu">float</span>(<span class="st">'inf'</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Gerar todas as permutações das cidades</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    rotas_possiveis <span class="op">=</span> itertools.permutations(cidades.keys())</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> rota <span class="kw">in</span> rotas_possiveis:</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        custo <span class="op">=</span> calcular_custo_rota(rota, cidades)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> custo <span class="op">&lt;</span> menor_custo:</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>            melhor_rota <span class="op">=</span> rota</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>            menor_custo <span class="op">=</span> custo</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> melhor_rota, menor_custo</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Coordenadas das cidades</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>cidades <span class="op">=</span> {</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>: (<span class="dv">5</span>, <span class="dv">4</span>),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>: (<span class="dv">2</span>, <span class="dv">0</span>),</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>: (<span class="dv">1</span>, <span class="dv">5</span>),</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span>: (<span class="dv">3</span>, <span class="dv">4</span>),</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="dv">4</span>: (<span class="dv">2</span>, <span class="dv">9</span>),</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span>: (<span class="dv">5</span>, <span class="dv">9</span>)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Encontrar o melhor caminho</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>melhor_rota, menor_custo <span class="op">=</span> encontrar_melhor_caminho(cidades)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Melhor Rota:"</span>, melhor_rota)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Custo da Rota:"</span>, menor_custo)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Melhor Rota: (0, 3, 1, 2, 4, 5)
+Custo da Rota: 23.345230764828106</code></pre>
+</div>
+</div>
 </section>
 </section>
 <section id="conclusão" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> Conclusão</h1>
 <p>Este estudo de caso demonstrou a aplicação dos Algoritmos Genéticos na resolução do Problema do Caixeiro Viajante, destacando sua capacidade de explorar grandes espaços de soluções e encontrar rotas eficientes. Através da representação das soluções e dos operadores genéticos, foi possível gerar soluções aproximadas, minimizando o custo das rotas. Embora não garantam a solução ótima global, os AGs mostram-se eficazes em problemas complexos, especialmente quando combinados com técnicas híbridas para melhorar a precisão da busca.</p>
+</section>
+<section id="referências" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Referências</h1>
+<p>MALAQUIAS, Nélia Gomes Lessa. Algoritmos genéticos e suas aplicações no problema do caixeiro viajante. 2013. 108 f.&nbsp;Dissertação (Mestrado em Ciência da Computação) — Universidade Federal de Uberlândia, Uberlândia, 2013. Disponível em: <a href="https://repositorio.ufu.br/bitstream/123456789/14632/1/NGLMalaquiasDISPRT.pdf" class="uri">https://repositorio.ufu.br/bitstream/123456789/14632/1/NGLMalaquiasDISPRT.pdf</a>. Acesso em: 15 nov. 2024.</p>
+<p>LINDHARDT, L. Aplicação de Algoritmos Genéticos no Problema do Caixeiro Viajante. Rio de Janeiro: Universidade Federal do Rio de Janeiro, 2010. Dissertação de Mestrado. Acesso em: 15 nov. 2024.</p>
+<p>ZAVADSKY, D. A.; MAZO, J. E.; FERREIRA, C. S. Problema do Caixeiro Viajante: Uma Abordagem com Algoritmos Genéticos e Simulação Computacional. São Carlos: Editora UFSCAR, 2018. Acesso em: 15 nov. 2024.</p>
 </section>
 
 </main>
