@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estilo ClassicMag</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="top-header">
+                <div class="date-time">
+                    <p id="date-time"></p>
+                </div>
+                <div class="buttons">
+                    <button class="btn-subscribe">Inscrever-se</button>
+                    <button class="btn-random-post">Obter Post Aleatório</button>
+                </div>
+            </div>
+
+            <div class="main-header">
+                <div class="logo">
+                    <h1>ClassicMag</h1>
+                </div>
+                <p class="quote">"O sucesso não é final, o fracasso não é fatal: é a coragem de continuar que conta."</p>
+                <nav class="navigation">
+                    <ul>
+                        <li><a href="#">Início</a></li>
+                        <li><a href="#">Em Alta</a></li>
+                        <li><a href="#">Destaques</a></li>
+                        <li><a href="#">Clima</a></li>
+                        <li><a href="#">Internacional</a></li>
+                        <li><a href="#">Moda</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="article-layout">
+                <div class="side-articles">
+                    <div class="separator"></div>
+                    <article class="small-article">
+                        <h3>Artigo 1</h3>
+                        <p>...</p>
+                        <p class="date">Escrito em 18/11/2024</p>
+                    </article>
+                    <article class="small-article">
+                        <h3>Artigo 2</h3>
+                        <p>...</p>
+                        <p class="date">Escrito em 18/11/2024</p>
+                    </article>
+                    <article class="small-article">
+                        <h3>Artigo 3</h3>
+                        <p>...</p>
+                        <p class="date">Escrito em 18/11/2024</p>
+                    </article>
+                </div>
+
+                <article class="main-article">
+                    <img src="Algortimosgeneticos_files\figure-html\caixeiro-viajante.jpg" alt="Artigo Principal">
+                    <h2>Problema do Caixeiro Viajante</h2>
+                    <p>Aplicação dos Algoritmos Genéticos na resolução do Problema do Caixeiro Viajante...</p>
+                    <p class="date">Escrito em 18/11/2024</p>
+                    <a href="Algortimosgeneticos.html" class="btn-read-more">Leia Mais</a>
+                </article>
+
+                <div class="side-articles">
+                    <div class="separator"></div>
+                    <article class="small-article">
+                        <h3>Artigo 4</h3>
+                        <p>...</p>
+                        <p class="date">Escrito em 18/11/2024</p>
+                    </article>
+                    <article class="small-article">
+                        <h3>Artigo 5</h3>
+                        <p>...</p>
+                        <p class="date">Escrito em 18/11/2024</p>
+                    </article>
+                    <article class="small-article">
+                        <h3>Artigo 6</h3>
+                        <p>...</p>
+                        <p class="date">Escrito em 18/11/2024</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ClassicMag. Todos os Direitos Reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Script de Data e Hora -->
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeString = now.toLocaleString();
+            document.getElementById("date-time").textContent = dateTimeString;
+        }
+        setInterval(updateDateTime, 1000);  // Atualizar a cada segundo
+        updateDateTime();  // Inicializar imediatamente
+    </script>
+</body>
+</html>
